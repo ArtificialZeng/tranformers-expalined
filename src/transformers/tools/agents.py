@@ -686,19 +686,22 @@ class LocalAgent(Agent):
     agent.run("Draw me a picture of rivers and lakes.")
     ```
     """
-
+    #这段代码主要定义了两个类：一个是LocalAgent，另一个是StopSequenceCriteria。下面我会逐行解释代码。
+    #这是LocalAgent类的构造函数，接受五个参数。model和tokenizer是用于生成文本的模型和分词器。chat_prompt_template、run_prompt_template和additional_tools这三个参数是可选的，分别代表聊天提示模板、运行提示模板和附加工具。
     def __init__(self, model, tokenizer, chat_prompt_template=None, run_prompt_template=None, additional_tools=None):
         self.model = model
-        self.tokenizer = tokenizer
+        self.tokenizer = tokenizer #这两行将输入的model和tokenizer保存为LocalAgent对象的属性。
+        #调用父类的构造函数，传入chat_prompt_template、run_prompt_template和additional_tools。
         super().__init__(
             chat_prompt_template=chat_prompt_template,
             run_prompt_template=run_prompt_template,
             additional_tools=additional_tools,
         )
-
-    @classmethod
-    def from_pretrained(cls, pretrained_model_name_or_path, **kwargs):
-        """
+    
+    
+    @classmethod #这是一个修饰器，表示下面的方法是类方法。
+    def from_pretrained(cls, pretrained_model_name_or_path, **kwargs): 
+        """ #这是一个类方法，用于从预训练模型中创建LocalAgent对象。pretrained_model_name_or_path是预训练模型的名称或者路径，**kwargs是其他的关键字参数。
         Convenience method to build a `LocalAgent` from a pretrained checkpoint.
 
         Args:
@@ -719,26 +722,26 @@ class LocalAgent(Agent):
         """
         model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path, **kwargs)
-        return cls(model, tokenizer)
+        return cls(model, tokenizer)  #使用加载的模型和分词器创建LocalAgent对象，并返回。
 
-    @property
-    def _model_device(self):
-        if hasattr(self.model, "hf_device_map"):
-            return list(self.model.hf_device_map.values())[0]
-        for param in self.mode.parameters():
-            return param.device
+    @property #是一个修饰器，表示下面的方法是一个属性。
+    def _model_device(self): #这个方法返回模型的设备。
+        if hasattr(self.model, "hf_device_map"):  #判断模型是否有hf_device_map属性。
+            return list(self.model.hf_device_map.values())[0]  #果有hf_device_map属性，返回第一个设备。
+        for param in self.mode.parameters():  #如果没有hf_device_map属性，遍历模型的参数。
+            return param.device  #返回第一个参数的设备。
 
-    def generate_one(self, prompt, stop):
-        encoded_inputs = self.tokenizer(prompt, return_tensors="pt").to(self._model_device)
-        src_len = encoded_inputs["input_ids"].shape[1]
-        stopping_criteria = StoppingCriteriaList([StopSequenceCriteria(stop, self.tokenizer)])
-        outputs = self.model.generate(
+    def generate_one(self, prompt, stop):  #这个方法用于根据给定的提示生成一段文本。prompt是提示，stop是停止标志。
+        encoded_inputs = self.tokenizer(prompt, return_tensors="pt").to(self._model_device)  #对提示进行编码，并将编码结果移动到模型的设备上。
+        src_len = encoded_inputs["input_ids"].shape[1]  #获取输入的长度。
+        stopping_criteria = StoppingCriteriaList([StopSequenceCriteria(stop, self.tokenizer)])  #创建停止条件，当生成的文本包含停止标志时停止生成。
+        outputs = self.model.generate(  #生成文本
             encoded_inputs["input_ids"], max_new_tokens=200, stopping_criteria=stopping_criteria
         )
 
-        result = self.tokenizer.decode(outputs[0].tolist()[src_len:])
+        result = self.tokenizer.decode(outputs[0].tolist()[src_len:])  #解码生成的文本。
         # Inference API returns the stop sequence
-        for stop_seq in stop:
+        for stop_seq in stop:  #遍历每一个停止序列。
             if result.endswith(stop_seq):
                 result = result[: -len(stop_seq)]
         return result
