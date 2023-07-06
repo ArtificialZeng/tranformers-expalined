@@ -1,13 +1,13 @@
 # tranformers-code-explained--line-by-line
 
-* [src/](./src)
-  * [utils/](./src/utils)
-    * [common.py](./src/utils/common.py)
-    * [peft_trainer.py](./src/utils/peft_trainer.py) 
+* [xxx/](./src)
+  * [xxxx/](./src/utils)
+    * [xxxx.py](./src/utils/common.py)
+    * [xxxx.py](./src/utils/peft_trainer.py) 
       * [agents.py（.from_pretrained()）](/src/transformers/tools/agents.py) 
-  * [train_sft.py](./src/train_sft.py)
-* [examples/](./examples)
-  * [ads_generation.md](./examples/ads_generation.md)
+  * [xxxx.py](./src/train_sft.py)
+* [xxxx/](./examples)
+  * [xxxx.md](./examples/ads_generation.md)
 * [README.md](./README.md)
 
 
