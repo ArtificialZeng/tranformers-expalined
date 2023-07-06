@@ -21,7 +21,7 @@
   * [xxxx/](./ChatGLM-Efficient-Tuning-Explained/src/utils)
     * [xxxx.py](./ChatGLM-Efficient-Tuning-Explained/src/utils/common.py)
     * [xxxx.py](./ChatGLM-Efficient-Tuning-Explained/src/utils/peft_trainer.py)
-      * [CSDN彩色博客版：agents.py（.from_pretrained()（.from_pretrained()）]([/src/transformers/tools/agents.py](https://zengxiaojian.blog.csdn.net/article/details/131578327)) 
+      * [CSDN彩色博客版/src/transformers/tools/agents.py（.from_pretrained）：agents.py](https://zengxiaojian.blog.csdn.net/article/details/131578327)
 * [README.md](./ChatGLM-Efficient-Tuning-Explained/README.md)
 
 
