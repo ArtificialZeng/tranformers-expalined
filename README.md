@@ -1,5 +1,10 @@
 # tranformers-code-explained--line-by-line
 
+转载至Hugging Face transformer项目官方，是个人的理解编辑加工加上chatgpt4给出的代码解读版本。尽量做到逐行解释，小白友好。
+欢迎大家提交pr，和star、fork，提交自己的源码理解。
+
+注：xxxx表示伪目录，非有效。
+
 * [xxx/](./src)
   * [xxxx/](./src/utils)
     * [xxxx.py](./src/utils/common.py)
@@ -12,9 +17,11 @@
 
 
 # CSDN彩色博客版：
-* [src/](./ChatGLM-Efficient-Tuning-Explained/src)
-  * [utils/](./ChatGLM-Efficient-Tuning-Explained/src/utils)
-    * [common.py](./ChatGLM-Efficient-Tuning-Explained/src/utils/common.py)
-    * [peft_trainer.py](./ChatGLM-Efficient-Tuning-Explained/src/utils/peft_trainer.py)
-  * [CSDN彩色源码解析train_sft.py](https://zengxiaojian.blog.csdn.net/article/details/131458667)
+* [xxxx/](./ChatGLM-Efficient-Tuning-Explained/src)
+  * [xxxx/](./ChatGLM-Efficient-Tuning-Explained/src/utils)
+    * [xxxx.py](./ChatGLM-Efficient-Tuning-Explained/src/utils/common.py)
+    * [xxxx.py](./ChatGLM-Efficient-Tuning-Explained/src/utils/peft_trainer.py)
+      * [CSDN彩色博客版：agents.py（.from_pretrained()（.from_pretrained()）]([/src/transformers/tools/agents.py](https://zengxiaojian.blog.csdn.net/article/details/131578327)) 
 * [README.md](./ChatGLM-Efficient-Tuning-Explained/README.md)
+
+
