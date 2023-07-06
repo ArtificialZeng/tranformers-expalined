@@ -700,7 +700,7 @@ class LocalAgent(Agent):
     
     
     @classmethod #这是一个修饰器，表示下面的方法是类方法。
-    def from_pretrained(cls, pretrained_model_name_or_path, **kwargs): 
+    def from_pretrained(cls, pretrained_model_name_or_path, **kwargs):  #cls 是一个在类方法中被约定俗成地用来表示类本身的参数。
         """ #这是一个类方法，用于从预训练模型中创建LocalAgent对象。pretrained_model_name_or_path是预训练模型的名称或者路径，**kwargs是其他的关键字参数。
         Convenience method to build a `LocalAgent` from a pretrained checkpoint.
 
@@ -722,6 +722,8 @@ class LocalAgent(Agent):
         """
         model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs)
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path, **kwargs)
+        #cls(model, tokenizer) 就是在调用 LocalAgent 的构造函数（__init__），因为在这个上下文中，cls 就是 LocalAgent 类。
+        #所以，return cls(model, tokenizer) 的作用就是创建一个新的 LocalAgent 实例，并返回这个实例。
         return cls(model, tokenizer)  #使用加载的模型和分词器创建LocalAgent对象，并返回。
 
     @property #是一个修饰器，表示下面的方法是一个属性。
@@ -746,7 +748,7 @@ class LocalAgent(Agent):
                 result = result[: -len(stop_seq)]
         return result
 
-
+#定义一个名为StopSequenceCriteria的类，它继承自StoppingCriteria。这个类用于在生成过程中遇到特定序列时停止生成。
 class StopSequenceCriteria(StoppingCriteria):
     """
     This class can be used to stop generation whenever a sequence of tokens is encountered.
@@ -757,13 +759,33 @@ class StopSequenceCriteria(StoppingCriteria):
         tokenizer:
             The tokenizer used to decode the model outputs.
     """
-
+    #这是StopSequenceCriteria的构造函数，接受两个参数：停止序列和分词器。
     def __init__(self, stop_sequences, tokenizer):
-        if isinstance(stop_sequences, str):
+        if isinstance(stop_sequences, str):  #如果stop_sequences是字符串，那么将其转化为列表。
             stop_sequences = [stop_sequences]
-        self.stop_sequences = stop_sequences
+        self.stop_sequences = stop_sequences  #和 self.tokenizer = tokenizer 将输入的停止序列和分词器保存为StopSequenceCriteria对象的属性。
         self.tokenizer = tokenizer
 
-    def __call__(self, input_ids, scores, **kwargs) -> bool:
-        decoded_output = self.tokenizer.decode(input_ids.tolist()[0])
-        return any(decoded_output.endswith(stop_sequence) for stop_sequence in self.stop_sequences)
+    def __call__(self, input_ids, scores, **kwargs) -> bool:  #定义了该类的调用方法，输入参数为输入的id、得分以及其他关键字参数，返回值是布尔值。
+        decoded_output = self.tokenizer.decode(input_ids.tolist()[0])  #将输入的id解码为文本。
+        return any(decoded_output.endswith(stop_sequence) for stop_sequence in self.stop_sequences)   #如果解码出的文本以任何一个停止序列结尾，那么返回True，否则返回False。
+
+'''
+基础知识：
+1.return cls(model, tokenizer) 这里面的cls是什么
+
+在这段代码中，cls 是一个在类方法中被约定俗成地用来表示类本身的参数。
+
+在 Python 中，实例方法（instance method）的第一个参数通常是 self，表示实例本身。类方法（class method）则不是在实例上调用，而是在类上调用。所以，类方法的第一个参数通常是 cls，表示类本身。
+
+在这段特定的代码中，from_pretrained 是一个类方法，它加载一个预训练模型和一个预训练的分词器，然后使用这个模型和分词器来创建一个 LocalAgent 实例。cls(model, tokenizer) 就是在调用 LocalAgent 的构造函数（__init__），因为在这个上下文中，cls 就是 LocalAgent 类。
+
+所以，return cls(model, tokenizer) 的作用就是创建一个新的 LocalAgent 实例，并返回这个实例。
+
+2.isinstance() 是 Python 的一个内建函数，用于检查一个对象是否是某个类的实例，或者是否是某个类的子类的实例。
+
+在这段代码中，isinstance(stop_sequences, str) 用来检查 stop_sequences 是否是 str 类（即字符串）的实例。如果 stop_sequences 是一个字符串，这个检查将返回 True；否则，返回 False。
+
+这里的 if isinstance(stop_sequences, str): 判断 stop_sequences 是否为字符串类型。如果是字符串，那么将其封装成一个列表，因为后续的处理需要一个序列（例如列表）的停止序列。如果 stop_sequences 已经是一个列表（或其他序列类型），则不需要这个转换。
+
+'''
