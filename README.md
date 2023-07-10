@@ -6,13 +6,12 @@
 注：xxxx表示伪目录，非有效。
 
 * [/src](./src)
-  * [xxxx/](./src/utils)
-    * [xxxx.py](./src/utils/common.py)
-    * [xxxx.py](./src/utils/peft_trainer.py) 
-    * [/src/transformers](/src/transformers)
-      * [training_args.py（do_train、do_eval）](/src/transformers/training_args.py)
-        * [/src/transformers/tools/]
-          * [agents.py（.from_pretrained()）](/src/transformers/tools/agents.py)
+   * [xxxx.py](./src/utils/common.py)
+   * [xxxx.py](./src/utils/peft_trainer.py) 
+   * [/src/transformers](/src/transformers)
+     * [training_args.py（do_train、do_eval）](/src/transformers/training_args.py)
+       * [/src/transformers/tools/]
+         * [agents.py（.from_pretrained()）](/src/transformers/tools/agents.py)
   * [xxxx.py](./src/train_sft.py)
 * [xxxx/](./examples)
   * [xxxx.md](./examples/ads_generation.md)
