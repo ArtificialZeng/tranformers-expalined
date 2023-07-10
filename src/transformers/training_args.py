@@ -609,12 +609,12 @@ class TrainingArguments:
             This flag is experimental and subject to change in future releases.
     """
 
-    framework = "pt"
-    output_dir: str = field(
+    framework = "pt"  #定义了一个字符串变量 framework，其值为 "pt"。
+    output_dir: str = field(  #定义了一个类型为字符串的字段 output_dir。其元数据包含一个帮助信息，表示这个字段用于指定模型预测和检查点将被写入的输出目录。
         metadata={"help": "The output directory where the model predictions and checkpoints will be written."},
     )
-    overwrite_output_dir: bool = field(
-        default=False,
+    overwrite_output_dir: bool = field(  #定义了一个布尔值字段 定义了一个类型为字符串的字段 output_dir。其元数据包含一个帮助信息，表示这个字段用于指定模型预测和检查点将被写入的输出目录。
+        default=False,  #默认值为 False。其元数据包含一个帮助信息，表示这个字段控制是否覆盖输出目录的内容。如果 output_dir 指向一个检查点目录，那么可以设置这个字段为 True，以继续训练。
         metadata={
             "help": (
                 "Overwrite the content of the output directory. "
@@ -623,14 +623,14 @@ class TrainingArguments:
         },
     )
 
-    do_train: bool = field(default=False, metadata={"help": "Whether to run training."})
-    do_eval: bool = field(default=False, metadata={"help": "Whether to run eval on the dev set."})
-    do_predict: bool = field(default=False, metadata={"help": "Whether to run predictions on the test set."})
-    evaluation_strategy: Union[IntervalStrategy, str] = field(
+    do_train: bool = field(default=False, metadata={"help": "Whether to run training."})  #定义了一个布尔值字段 do_train，默认值为 False。其元数据包含一个帮助信息，表示这个字段控制是否运行训练。
+    do_eval: bool = field(default=False, metadata={"help": "Whether to run eval on the dev set."})  #定义了一个布尔值字段 do_eval，默认值为 False。其元数据包含一个帮助信息，表示这个字段控制是否在开发集上运行评估。
+    do_predict: bool = field(default=False, metadata={"help": "Whether to run predictions on the test set."}) #定义了一个布尔值字段 do_predict，默认值为 False。其元数据包含一个帮助信息，表示这个字段控制是否在测试集上运行预测。
+    evaluation_strategy: Union[IntervalStrategy, str] = field(  #定义了一个字段 evaluation_strategy，类型可以是 IntervalStrategy 或者字符串，默认值为 "no"。其元数据包含一个帮助信息，表示这个字段用于设置使用的评估策略。
         default="no",
         metadata={"help": "The evaluation strategy to use."},
     )
-    prediction_loss_only: bool = field(
+    prediction_loss_only: bool = field(  #默认值为 False。其元数据包含一个帮助信息，表示在执行评估和预测时，是否只返回损失。
         default=False,
         metadata={"help": "When performing evaluation and predictions, only returns the loss."},
     )
