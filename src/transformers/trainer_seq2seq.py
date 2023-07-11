@@ -73,9 +73,10 @@ class Seq2SeqTrainer(Trainer):  #定义了 Seq2SeqTrainer 类，它继承自 Tra
             gen_config = self.load_generation_config(self.args.generation_config)  #调用 load_generation_config 方法，根据 args.generation_config 加载生成配置。
             self.model.generation_config = gen_config  #将加载的生成配置赋值给模型的生成配置。
             #总的来说，这段代码定义了一个继承自 Trainer 的 Seq2SeqTrainer 类，用于训练 Seq2Seq 模型，可以接收和处理一系列关于模型、数据集、优化器、回调函数等的参数，并在指定了生成配置的情况下，可以覆盖模型原有的生成配置。
-
-    @staticmethod
-    def load_generation_config(gen_config_arg: Union[str, GenerationConfig]) -> GenerationConfig:
+    
+    #这段代码定义了一个静态方法 load_generation_config，该方法从 Seq2SeqTrainingArguments.generation_config 参数中加载 GenerationConfig 配置。
+    @staticmethod #这是一个Python装饰器，表示接下来定义的方法是静态方法，也就是说这个方法属于类，而不是类的实例。
+    def load_generation_config(gen_config_arg: Union[str, GenerationConfig]) -> GenerationConfig:  #定义了一个静态方法 load_generation_config，它接受一个参数 gen_config_arg，这个参数可以是字符串类型或者 GenerationConfig 类型。函数的返回类型是 GenerationConfig。
         """
         Loads a `~generation.GenerationConfig` from the `Seq2SeqTrainingArguments.generation_config` arguments.
 
@@ -87,37 +88,39 @@ class Seq2SeqTrainer(Trainer):  #定义了 Seq2SeqTrainer 类，它继承自 Tra
             A `~generation.GenerationConfig`.
         """
 
-        # GenerationConfig provided, nothing to do
+        # GenerationConfig provided, nothing to do 如果传入的参数 gen_config_arg 是 GenerationConfig 类型，那么就直接返回该参数的深拷贝。
         if isinstance(gen_config_arg, GenerationConfig):
             return deepcopy(gen_config_arg)
 
-        # str or Path
+        # str or Path 如果传入的参数 gen_config_arg 是字符串类型，那么将其转换为 Path 对象，否则直接使用 gen_config_arg。
         pretrained_model_name = Path(gen_config_arg) if isinstance(gen_config_arg, str) else gen_config_arg
-        config_file_name = None
+        config_file_name = None #初始化 config_file_name 为 None。
 
         # Figuring if it is path pointing to a file, pointing to a directory or else a model id or URL
-        # This step is required in order to determine config_file_name
-        if pretrained_model_name.is_file():
+        # This step is required in order to determine config_file_name 接下来的部分试图确定 pretrained_model_name 是指向文件的路径、指向目录的路径，还是模型的ID或URL。这一步是为了确定 config_file_name。
+        if pretrained_model_name.is_file(): #如果 pretrained_model_name 是文件路径，那么就将其名称赋值给 config_file_name，并将其父路径赋值给 pretrained_model_name。
             config_file_name = pretrained_model_name.name
             pretrained_model_name = pretrained_model_name.parent
         # dir path
-        elif pretrained_model_name.is_dir():
+        elif pretrained_model_name.is_dir():  #如果 pretrained_model_name 是目录路径，那么不做任何操作。
             pass
         # model id or URL
-        else:
+        else:  #如果 pretrained_model_name 不是文件路径也不是目录路径，那么就认为它是模型的ID或URL，将 gen_config_arg 赋值给 pretrained_model_name。
             pretrained_model_name = gen_config_arg
 
-        gen_config = GenerationConfig.from_pretrained(pretrained_model_name, config_file_name)
-        return gen_config
+        gen_config = GenerationConfig.from_pretrained(pretrained_model_name, config_file_name) #调用 GenerationConfig 类的 from_pretrained 方法，加载预训练的配置。
+        return gen_config #返回加载的配置。
+        #总体来看，load_generation_config 方法的作用是从给定的参数中加载生成配置，这个参数可以是 GenerationConfig 对象，也可以是指向配置文件的路径，或者是模型的ID或URL。
 
-    def evaluate(
+    #这段代码定义了一个 evaluate 方法，用于在给定的数据集上评估模型。它也提供了一些可选参数来改变评估行为。
+    def evaluate(  #定义了 evaluate 方法。这个方法接受几个参数：eval_dataset，ignore_keys，metric_key_prefix，和一个特殊的 **gen_kwargs 参数，这是一个字典，可以传入任意数量的关键字参数。
         self,
         eval_dataset: Optional[Dataset] = None,
         ignore_keys: Optional[List[str]] = None,
         metric_key_prefix: str = "eval",
         **gen_kwargs,
     ) -> Dict[str, float]:
-        """
+        """  接下来的部分是这个方法的 docstring，它解释了方法的用途，参数和返回值。
         Run evaluation and returns metrics.
 
         The calling script will be responsible for providing a method to compute metrics, as they are task-dependent
@@ -149,15 +152,16 @@ class Seq2SeqTrainer(Trainer):  #定义了 Seq2SeqTrainer 类，它继承自 Tra
             dictionary also contains the epoch number which comes from the training state.
         """
 
-        gen_kwargs = gen_kwargs.copy()
-        if gen_kwargs.get("max_length") is None and gen_kwargs.get("max_new_tokens") is None:
+        gen_kwargs = gen_kwargs.copy()  #复制 gen_kwargs 字典，以避免修改原始字典。
+        if gen_kwargs.get("max_length") is None and gen_kwargs.get("max_new_tokens") is None:  #检查 gen_kwargs 字典中是否包含 "max_length" 或 "max_new_tokens" 键。如果这两个键都不存在，那么就将 self.args.generation_max_length 赋值给 gen_kwargs["max_length"]。
             gen_kwargs["max_length"] = self.args.generation_max_length
-        gen_kwargs["num_beams"] = (
+        gen_kwargs["num_beams"] = (  #这行代码先检查 gen_kwargs 是否包含 "num_beams" 键。如果存在，那么就使用 gen_kwargs["num_beams"] 的值，否则就使用 self.args.generation_num_beams 的值。
             gen_kwargs["num_beams"] if gen_kwargs.get("num_beams") is not None else self.args.generation_num_beams
         )
-        self._gen_kwargs = gen_kwargs
+        self._gen_kwargs = gen_kwargs  #将修改后的 gen_kwargs 字典赋值给 self._gen_kwargs。
 
-        return super().evaluate(eval_dataset, ignore_keys=ignore_keys, metric_key_prefix=metric_key_prefix)
+        return super().evaluate(eval_dataset, ignore_keys=ignore_keys, metric_key_prefix=metric_key_prefix)  #调用父类 Trainer 的 evaluate 方法，执行实际的评估操作，并返回结果。
+        #这个 evaluate 方法的作用是在给定的数据集上评估模型，并根据需要调整生成参数，如最大生成长度和束搜索的数量。评估的结果是一个字典，包含了评估损失和可能的预测指标。
 
     def predict(
         self,
