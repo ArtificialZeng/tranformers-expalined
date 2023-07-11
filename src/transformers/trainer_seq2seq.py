@@ -18,15 +18,15 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Un
 
 import torch
 from torch import nn
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset #从 PyTorch 库导入 Dataset 类，用于表示数据集。
 
-from .deepspeed import is_deepspeed_zero3_enabled
-from .generation.configuration_utils import GenerationConfig
-from .trainer import Trainer
-from .utils import logging
+from .deepspeed import is_deepspeed_zero3_enabled  #从 deepspeed 模块导入 is_deepspeed_zero3_enabled 函数，此函数用于检查是否启用了 deepspeed 的 zero3 优化。
+from .generation.configuration_utils import GenerationConfig #从 generation 模块导入 GenerationConfig 类，用于设置和管理模型生成的配置。
+from .trainer import Trainer  #从当前目录导入 Trainer 类，它是实现模型训练的基类。
+from .utils import logging  #导入 logging 模块，用于记录日志。
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  #块是为了类型检查而导入的模块和类，只在类型检查时使用，不会影响运行时代码。
     from .data.data_collator import DataCollator
     from .modeling_utils import PreTrainedModel
     from .tokenization_utils_base import PreTrainedTokenizerBase
@@ -38,8 +38,8 @@ if TYPE_CHECKING:
 logger = logging.get_logger(__name__)
 
 
-class Seq2SeqTrainer(Trainer):
-    def __init__(
+class Seq2SeqTrainer(Trainer):  #定义了 Seq2SeqTrainer 类，它继承自 Trainer 类。
+    def __init__(  #Seq2SeqTrainer 类的构造函数，定义了该类在创建对象时需要传入的参数及其默认值。
         self,
         model: Union["PreTrainedModel", nn.Module] = None,
         args: "TrainingArguments" = None,
@@ -53,7 +53,7 @@ class Seq2SeqTrainer(Trainer):
         optimizers: Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler.LambdaLR] = (None, None),
         preprocess_logits_for_metrics: Optional[Callable[[torch.Tensor, torch.Tensor], torch.Tensor]] = None,
     ):
-        super().__init__(
+        super().__init__(  #调用父类 Trainer 的构造函数，将参数传递给父类
             model=model,
             args=args,
             data_collator=data_collator,
@@ -69,9 +69,10 @@ class Seq2SeqTrainer(Trainer):
 
         # Override self.model.generation_config if a GenerationConfig is specified in args.
         # Priority: args.generation_config > model.generation_config > default GenerationConfig.
-        if self.args.generation_config is not None:
-            gen_config = self.load_generation_config(self.args.generation_config)
-            self.model.generation_config = gen_config
+        if self.args.generation_config is not None:  #如果在训练参数 args 中指定了生成配置 generation_config，则覆盖模型原有的生成配置。
+            gen_config = self.load_generation_config(self.args.generation_config)  #调用 load_generation_config 方法，根据 args.generation_config 加载生成配置。
+            self.model.generation_config = gen_config  #将加载的生成配置赋值给模型的生成配置。
+            #总的来说，这段代码定义了一个继承自 Trainer 的 Seq2SeqTrainer 类，用于训练 Seq2Seq 模型，可以接收和处理一系列关于模型、数据集、优化器、回调函数等的参数，并在指定了生成配置的情况下，可以覆盖模型原有的生成配置。
 
     @staticmethod
     def load_generation_config(gen_config_arg: Union[str, GenerationConfig]) -> GenerationConfig:
