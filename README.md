@@ -11,7 +11,11 @@
    * [/src/transformers](/src/transformers)
      * [training_args.py（do_train、do_eval）](/src/transformers/training_args.py)
      * [trainer_seq2seq.py](/src/transformers/trainer_seq2seq.py)
-       * [/src/transformers/tools/]
+       * Seq2SeqTrainer(Trainer)
+       * load_generation_config
+       * evaluate()
+       * predict()
+       * [/src/transformers/tools/](/src/transformers/tools)
          * [agents.py（.from_pretrained()）](/src/transformers/tools/agents.py)
   * [xx.py](./src/train_sft.py)
 * [xx/](./examples)
