@@ -10,12 +10,15 @@
    * [xx.py](./src/utils/peft_trainer.py) 
    * [/src/transformers](/src/transformers)
      * [training_args.py（do_train、do_eval）](/src/transformers/training_args.py)
+     * [trainer_seq2seq.py](/src/transformers/trainer_seq2seq.py)
        * [/src/transformers/tools/]
          * [agents.py（.from_pretrained()）](/src/transformers/tools/agents.py)
   * [xx.py](./src/train_sft.py)
 * [xx/](./examples)
   * [xx.md](./examples/ads_generation.md)
 * [README.md](./README.md)
+
+  
 
 
 # CSDN彩色博客版：
