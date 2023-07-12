@@ -15,6 +15,10 @@
        * load_generation_config
        * evaluate()
        * predict()
+     * [trainer.py](/src/transformers/trainer.py)
+       * class Trainer:
+       * FP16 + model parallelism
+       * add_callback()
      * [deepspeed.py](/src/transformers/deepspeed.py)
        * class HfDeepSpeedConfig(DeepSpeedConfig)
        * class HfTrainerDeepSpeedConfig(HfDeepSpeedConfig):
