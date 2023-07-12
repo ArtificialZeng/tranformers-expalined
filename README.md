@@ -15,6 +15,7 @@
        * load_generation_config
        * evaluate()
        * predict()
+     * [deepspeed.py](/src/transformers/deepspeed.py)
        * [/src/transformers/tools/](/src/transformers/tools)
          * [agents.py（.from_pretrained()）](/src/transformers/tools/agents.py)
   * [xx.py](./src/train_sft.py)
