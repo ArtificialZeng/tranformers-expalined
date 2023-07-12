@@ -221,7 +221,7 @@ OPTIMIZER_NAME = "optimizer.pt"
 SCHEDULER_NAME = "scheduler.pt"
 SCALER_NAME = "scaler.pt"
 
-
+#Trainer类是一个用于训练和评估PyTorch模型的简单但功能完整的训练和评估循环，特别优化了对Transformers模型的支持。
 class Trainer:
     """
     Trainer is a simple but feature-complete training and eval loop for PyTorch, optimized for 🤗 Transformers.
@@ -305,11 +305,11 @@ class Trainer:
 
     """
 
-    # Those are used as methods of the Trainer in examples.
+    # Those are used as methods of the Trainer in examples.  这行代码从trainer_pt_utils模块导入了一些函数，这些函数将在Trainer类的方法中使用。
     from .trainer_pt_utils import _get_learning_rate, log_metrics, metrics_format, save_metrics, save_state
 
-    def __init__(
-        self,
+    def __init__( #定义了Trainer类的初始化方法。这个方法在创建Trainer类的新实例时会被调用。
+        self,    #它接受一系列参数，包括模型、训练参数、数据整理函数、训练和评估数据集、分词器、模型初始化函数、计算指标的函数、回调函数列表、优化器和预处理logits的函数。
         model: Union[PreTrainedModel, nn.Module] = None,
         args: TrainingArguments = None,
         data_collator: Optional[DataCollator] = None,
@@ -322,58 +322,60 @@ class Trainer:
         optimizers: Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler.LambdaLR] = (None, None),
         preprocess_logits_for_metrics: Optional[Callable[[torch.Tensor, torch.Tensor], torch.Tensor]] = None,
     ):
-        if args is None:
+        if args is None:  #if语句检查是否提供了训练参数。如果没有提供，它会创建一个新的TrainingArguments实例，并将输出目录设置为当前目录下的"tmp_trainer"。
             output_dir = "tmp_trainer"
             logger.info(f"No `TrainingArguments` passed, using `output_dir={output_dir}`.")
             args = TrainingArguments(output_dir=output_dir)
-        self.args = args
-        # Seed must be set before instantiating the model when using model
+        self.args = args  #这行代码将传入的训练参数保存到Trainer实例的args属性中。
+        # Seed must be set before instantiating the model when using model 根据训练参数中的设置，设置随机种子以保证训练的可复现性。
         enable_full_determinism(self.args.seed) if self.args.full_determinism else set_seed(self.args.seed)
-        self.hp_name = None
-        self.deepspeed = None
-        self.is_in_train = False
+        self.hp_name = None #初始化了一个名为hp_name的属性，用于存储超参数的名称。
+        self.deepspeed = None  #始化了一个名为deepspeed的属性，用于存储Deepspeed的实例（如果使用）。
+        self.is_in_train = False  #初始化了一个名为is_in_train的属性，用于标记模型是否正在训练。
 
-        self.create_accelerator_and_postprocess()
+        self.create_accelerator_and_postprocess()  #调用了一个方法来创建加速器并进行后处理。
 
         # memory metrics - must set up as early as possible
         self._memory_tracker = TrainerMemoryTracker(self.args.skip_memory_metrics)
-        self._memory_tracker.start()
+        self._memory_tracker.start()  #这两行代码创建了一个内存跟踪器，并开始跟踪内存使用情况。
 
         # set the correct log level depending on the node
         log_level = args.get_process_log_level()
-        logging.set_verbosity(log_level)
+        logging.set_verbosity(log_level)  #这两行代码获取并设置日志级别。
 
         # force device and distributed setup init explicitly
-        args._setup_devices
-
-        if model is None:
-            if model_init is not None:
+        args._setup_devices  #强制设备和分布式设置初始化。
+        
+        #接下来的一段代码检查是否提供了模型或模型初始化函数。如果都没有提供，它会抛出一个错误。如果两者都提供了，它会发出一个警告，因为model_init会在调用train方法时覆盖你的模型。
+        if model is None: #if语句检查是否提供了模型。
+            if model_init is not None: # 如果没有提供模型，这个if语句则检查是否提供了模型初始化函数。
                 self.model_init = model_init
-                model = self.call_model_init()
+                model = self.call_model_init()  #如果提供了模型初始化函数，这两行代码将模型初始化函数保存到Trainer实例的model_init属性中，并调用该函数来初始化模型。
             else:
                 raise RuntimeError("`Trainer` requires either a `model` or `model_init` argument")
-        else:
-            if model_init is not None:
-                warnings.warn(
+                #如果既没有提供模型也没有提供模型初始化函数，这行代码将抛出一个运行时错误。
+        else: #如果提供了模型，这个else语句将处理下一步。
+            if model_init is not None:  #这个if语句检查是否同时提供了模型和模型初始化函数。
+                warnings.warn(  #如果同时提供了模型和模型初始化函数，这行代码将发出一个警告，因为在调用train方法时，模型初始化函数将覆盖模型。
                     "`Trainer` requires either a `model` or `model_init` argument, but not both. `model_init` will"
                     " overwrite your model when calling the `train` method. This will become a fatal error in the next"
                     " release.",
                     FutureWarning,
                 )
-            self.model_init = model_init
+            self.model_init = model_init  #这行代码将模型初始化函数保存到Trainer实例的model_init属性中。
 
-        if model.__class__.__name__ in MODEL_MAPPING_NAMES:
-            raise ValueError(
+        if model.__class__.__name__ in MODEL_MAPPING_NAMES: #if语句检查你选择的模型是否在MODEL_MAPPING_NAMES列表中。这个列表包含了不能直接用于训练的模型的名称，这些模型只能计算隐藏状态并且不接受任何标签。
+            raise ValueError(  #如果你选择的模型不能直接用于训练，这行代码将抛出一个值错误，并建议你选择一个适合你任务的带有头部的模型，例如AutoModelForXxx。
                 f"The model you have picked ({model.__class__.__name__}) cannot be used as is for training: it only "
                 "computes hidden states and does not accept any labels. You should choose a model with a head "
                 "suitable for your task like any of the `AutoModelForXxx` listed at "
                 "https://huggingface.co/docs/transformers/model_doc/auto."
             )
-
+        #这个if语句检查模型是否可以并行化，并且是否已经并行化。
         if hasattr(model, "is_parallelizable") and model.is_parallelizable and model.model_parallel:
-            self.is_model_parallel = True
+            self.is_model_parallel = True  # 如果模型可以并行化并且已经并行化，这行代码将Trainer实例的is_model_parallel属性设置为True。
         else:
-            self.is_model_parallel = False
+            self.is_model_parallel = False #果模型不能并行化或者还没有并行化，这行代码将Trainer实例的is_model_parallel属性设置为False。
 
         if getattr(model, "hf_device_map", None) is not None:
             devices = [device for device in set(model.hf_device_map.values()) if device not in ["cpu", "disk"]]
