@@ -16,6 +16,11 @@
        * evaluate()
        * predict()
      * [deepspeed.py](/src/transformers/deepspeed.py)
+       * class HfDeepSpeedConfig(DeepSpeedConfig)
+       * class HfTrainerDeepSpeedConfig(HfDeepSpeedConfig):
+        * trainer_config_process(self, args)
+        * trainer_config_finalize(self, args, model, num_training_steps)
+        * trainer_config_finalize(self, args, model, num_training_steps)
        * [/src/transformers/tools/](/src/transformers/tools)
          * [agents.py（.from_pretrained()）](/src/transformers/tools/agents.py)
   * [xx.py](./src/train_sft.py)
