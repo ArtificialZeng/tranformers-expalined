@@ -15,33 +15,33 @@
 Integration with Deepspeed
 """
 
-import importlib.util
-import weakref
-from functools import partialmethod
+import importlib.util #Python的importlib.util模块提供了一系列用于加载、导入、和查找Python模块的工具。
+import weakref #weakref模块用于创建弱引用，允许引用对象但不会增加其引用计数。
+from functools import partialmethod  #functools模块中导入partialmethod函数，这个函数用于创建偏函数，可以固定一部分参数。
 
-from .dependency_versions_check import dep_version_check
-from .utils import is_accelerate_available, is_torch_available, logging
+from .dependency_versions_check import dep_version_check  #从当前包的dependency_versions_check模块中导入dep_version_check函数，这个函数用于检查依赖项的版本。
+from .utils import is_accelerate_available, is_torch_available, logging  #从当前包的utils模块中导入is_accelerate_available和is_torch_available函数，以及logging模块。
 
 
-if is_torch_available():
+if is_torch_available():  #如果PyTorch库可用，就导入它。
     import torch
 
-logger = logging.get_logger(__name__)
+logger = logging.get_logger(__name__)  #使用logging模块的get_logger函数创建一个日志记录器。
 
 
-def is_deepspeed_available():
+def is_deepspeed_available():  #定义一个函数is_deepspeed_available，用于检查DeepSpeed库是否可用。
     return importlib.util.find_spec("deepspeed") is not None
 
 
-if is_accelerate_available() and is_deepspeed_available():
-    from accelerate.utils.deepspeed import HfDeepSpeedConfig as DeepSpeedConfig
+if is_accelerate_available() and is_deepspeed_available():  #如果Accelerate库和DeepSpeed库都可用，就从Accelerate的utils.deepspeed模块中导入
+    from accelerate.utils.deepspeed import HfDeepSpeedConfig as DeepSpeedConfig  #HfDeepSpeedConfig类，并将其重命名为DeepSpeedConfig。
 else:
     # Inherits from a dummy `object` if accelerate is not available, so that python succeeds to import this file.
     # Deepspeed glue code will never inherit this dummy object as it checks if accelerate is available.
-    from builtins import object as DeepSpeedConfig
+    from builtins import object as DeepSpeedConfig  #如果Accelerate库和DeepSpeed库有任何一个不可用，就从Python内置的builtins模块中导入object类，并将其重命名为DeepSpeedConfig。
 
 
-class HfDeepSpeedConfig(DeepSpeedConfig):
+class HfDeepSpeedConfig(DeepSpeedConfig):  #定义一个新的类HfDeepSpeedConfig，这个类继承自DeepSpeedConfig。
     """
     This object contains a DeepSpeed configuration dictionary and can be quickly queried for things like zero stage.
 
@@ -58,12 +58,13 @@ class HfDeepSpeedConfig(DeepSpeedConfig):
 
     """
 
-    def __init__(self, config_file_or_dict):
+    def __init__(self, config_file_or_dict):  #定义这个类的构造方法，它接受一个参数，可以是DeepSpeed配置文件的路径，也可以是配置的字典。
         # set global weakref object
-        set_hf_deepspeed_config(self)
-        dep_version_check("accelerate")
+        set_hf_deepspeed_config(self) #调用set_hf_deepspeed_config函数，将当前的HfDeepSpeedConfig实例设置为全局的弱引用对象。
+        dep_version_check("accelerate")  #检查Accelerate和DeepSpeed的版本。
         dep_version_check("deepspeed")
-        super().__init__(config_file_or_dict)
+        super().__init__(config_file_or_dict)  #调用父类DeepSpeedConfig的构造方法，传入配置文件的路径或配置的字典。
+        #总的来说，这段代码主要定义了一个新的类HfDeepSpeedConfig，用于处理和查询DeepSpeed的配置。它继承自Accelerate库中的HfDeepSpeedConfig类，或者在Accelerate和DeepSpeed库都不可用时，继承自Python内置的object类。
 
 
 class HfTrainerDeepSpeedConfig(HfDeepSpeedConfig):
